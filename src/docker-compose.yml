@@ -1,0 +1,75 @@
+# version: '3.9'
+
+# services:
+#   de-final-prj:
+#     image: cr.yandex/crp1r8pht0n0gl25aug1/de-final-prj:latest
+#     environment:
+#       POSTGRES_USER: student
+#       POSTGRES_PASSWORD: de_student_112022
+#       POSTGRES_DB: db1
+#     ports:
+#       - 8280:8280
+#       - 6432:5432
+#       # - 16432:6432
+#     volumes:
+#       - mydb:/var/lib/postgresql
+#       - ./dags:/lessons/dags
+#     restart: unless-stopped
+#     # command: bash -c "pip install psycopg && airflow webserver"
+
+#   metabase:
+#     image: metabase/metabase
+#     ports:
+#       - 9000:8998
+#     restart: unless-stopped
+
+# volumes:
+#   mydb:
+
+version: '3.9'
+
+services:
+  de-final-prj:
+    image: cr.yandex/crp1r8pht0n0gl25aug1/de-final-prj:latest
+    environment:
+      POSTGRES_USER: student
+      POSTGRES_PASSWORD: de_student_112022
+      POSTGRES_DB: db1
+    ports:
+      - 8280:8280
+      - 6432:5432
+    volumes:
+      - mydb:/var/lib/postgresql
+      - ./dags:/lessons/dags
+    restart: unless-stopped
+    # command: bash -c "pip install psycopg && airflow webserver"
+
+  metabase:
+    image: metabase/metabase
+    ports:
+      - 8998:8998  # Можно сменить на 9000:8998, если 8998 занят
+    environment:
+      MB_JETTY_HOST: "0.0.0.0"      # Слушаем все интерфейсы
+      MB_JETTY_PORT: 8998            # Порт внутри контейнера
+      MB_DB_TYPE: "h2"              # Используем встроенную H2 (по умолчанию)
+      # MB_DB_TYPE: "vertica"
+      # MB_VERTICA_HOST: "<хост-vertica>"
+      # MB_VERTICA_PORT: 5433
+      # MB_VERTICA_DATABASE: "<база>"
+      # MB_VERTICA_USER: "<пользователь>"
+      # MB_VERTICAPASSWORD: "<пароль>"
+    restart: unless-stopped
+    volumes:
+      - ./plugins:/plugins  # монтируем plugins в контейнер
+    depends_on:                   # Ждём, пока запустится de-final-prj (если нужен PostgreSQL)
+      - de-final-prj
+    healthcheck:                    # Проверка здоровья
+      test: ["CMD", "curl", "-f", "http://localhost:8998/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+volumes:
+  mydb:
+
+

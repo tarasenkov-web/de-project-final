@@ -1,0 +1,25 @@
+# version: '2'
+
+services:
+  # metabase:
+  #   image: metabase/metabase
+  #   ports:
+  #     - 3333:3000
+  #   volumes:
+  #     - ./plugins/:/plugins
+
+  de-final-prj:
+    image: cr.yandex/crp1r8pht0n0gl25aug1/de-final-prj:latest
+    ports:
+      - 8280:8280
+      - 8998:8998
+      # - 15433:5432
+    volumes:
+      - mydb:/var/lib/postgresql
+      - mylessons:/lessons
+      - ./dags:/lessons/dags
+
+volumes:
+  mydb:
+  mylessons:
+  

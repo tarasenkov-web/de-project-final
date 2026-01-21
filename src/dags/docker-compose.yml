@@ -1,0 +1,22 @@
+version: '3.9'
+
+services:
+  de-final-prj:
+    image: cr.yandex/crp1r8pht0n0gl25aug1/de-final-prj:latest
+    ports:
+      - 8280:8280
+      # - 16432:6432
+    volumes:
+      - mydb:/var/lib/postgresql
+      - ./dags:/lessons/dags
+    restart: unless-stopped
+    command: bash -c "pip install psycopg && airflow webserver"
+
+  metabase:
+    image: metabase/metabase
+    ports:
+      - 8998:8998
+    restart: unless-stopped
+
+volumes:
+  mydb:
